@@ -15,7 +15,7 @@ var response = {
 app.use(bodyParser.json());
 app.post('/add',(req,res)=>{
   req = req.body;
- res.send(req.name);
+ res.send(req.name)
 });
 
 app.post('/', (req, res) => {
