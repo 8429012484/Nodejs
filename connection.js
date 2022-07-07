@@ -4,7 +4,7 @@ function createConnection(){
         host: "localhost",
         user: "root",
         password: "",
-        database: "vdc_app"
+        database: "node_test"
       });
 }
 

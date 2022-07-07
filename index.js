@@ -5,6 +5,7 @@ const dbConnection = require('./connection');
 const db = dbConnection.createConnection();
 const app = express();
 var port = 3000;
+app.use(express.json());
 
 var response = {
   "statusCode":"404",
@@ -12,37 +13,53 @@ var response = {
   "message":"Oops! Something went wrong!",
   "data":"",
 }
-app.use(bodyParser.json());
-app.post('/add',(req,res)=>{
-  req = req.body;
- res.send(req.name)
-});
-
-app.post('/', (req, res) => {
-    var id =  8;
-    query = `SELECT cm.id,cm.lang_id,cm.title,cm.description,cpm.price FROM course_master as cm JOIN course_price_master as cpm ON cm.id=cpm.course_id`;
+app.post('/view', (req, res) => { 
+    query = `Select * FROM users`;
     makeQuery(query,function(result){
-      if(result!=''){
+      if("success" in result){
         response.statusCode = '200';
         response.status     = 'Success';
         response.data       = result;
         response.message    = "Data Fetch Succesfully";
       }else{
         response.statusCode = '404';
-        response.status     = 'Success';
+        response.status     = 'error';
         response.data       = '';
-        response.message    = "No Data Found";
+        response.message    = result;
       }
       res.send(response);
   });
 });
 
+app.post('/add', (req, res) => {  
+  input = req.body;
+  var password = '123456789';
+  query = `Insert into users (name,email,phone,password)values("${input.name}","${input.email}","${input.phone}","${password}")`;
+  makeQuery(query,function(result){
+    if("success" in result){
+      response.statusCode = '200';
+      response.status     = 'Success';
+      response.data       = result['success'].insertId;
+      response.message    = "Data Fetch Succesfully";
+    }else{
+      response.statusCode = '404';
+      response.status     = 'error';
+      response.data       = '';
+      response.message    = result;
+    }
+    res.send(response);
+});
+});
+
 function makeQuery(string,callback){
   db.getConnection(function(err,connection) {
     if (err) throw err;
-    connection.query(string, function (err, result ) {
-        if (err) throw err;
-          return callback(result);
+      connection.query(string, function (err, result ) {
+        if (err){
+          return callback({'error':err});
+        }else{
+          return callback({'success':result});
+        }
       });
     });
 }
