@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const dbConnection = require('./connection'); 
 const db = dbConnection.createConnection();
 const app = express();
-var port = 3000;
+var port = 3002;
 app.use(express.json());
 
 var response = {
@@ -41,6 +41,31 @@ app.post('/add', (req, res) => {
       response.status     = 'Success';
       response.data       = result['success'].insertId;
       response.message    = "Data Fetch Succesfully";
+    }else{
+      response.statusCode = '404';
+      response.status     = 'error';
+      response.data       = '';
+      response.message    = result;
+    }
+    res.send(response);
+});
+});
+app.post('/login', (req, res) => {  
+  input = req.body;
+  query = `Select * From users where email='${input.email}' AND password='${input.password}' limit 0,1`;
+  makeQuery(query,function(result){
+    if("success" in result){
+      if(result['success'].length == 1){
+        
+        response.statusCode = '200';
+        response.status     = 'Success';
+        response.data       = result['success'];
+        response.message    = "Logged in successfully";
+      }else{
+        response.statusCode = '404';
+        response.status     = 'Error';
+        response.message    = "Invalid Credentials";
+      }
     }else{
       response.statusCode = '404';
       response.status     = 'error';
